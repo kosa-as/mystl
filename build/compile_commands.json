@@ -1,0 +1,8 @@
+[
+{
+  "directory": "/home/wangwenhai/Code/mystl/build",
+  "command": "/usr/bin/g++   -g -o CMakeFiles/vector.dir/main.cpp.o -c /home/wangwenhai/Code/mystl/main.cpp",
+  "file": "/home/wangwenhai/Code/mystl/main.cpp",
+  "output": "CMakeFiles/vector.dir/main.cpp.o"
+}
+]
