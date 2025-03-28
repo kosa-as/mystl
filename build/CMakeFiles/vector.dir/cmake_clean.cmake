@@ -1,7 +1,9 @@
 file(REMOVE_RECURSE
-  "CMakeFiles/vector.dir/main.cpp.o"
-  "CMakeFiles/vector.dir/main.cpp.o.d"
-  "vector"
+  "CMakeFiles/vector.dir/main.cpp.obj"
+  "CMakeFiles/vector.dir/main.cpp.obj.d"
+  "libvector.dll.a"
+  "vector.exe"
+  "vector.exe.manifest"
   "vector.pdb"
 )
 

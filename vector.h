@@ -90,6 +90,9 @@ public:
 
     // 快速排序函数声明
     template<typename Compare = std::less<T>>
+    void sort(iterator first, iterator last, Compare cmp = Compare());
+    // 函数重写
+    template<typename Compare = std::less<T>>
     void sort(Compare cmp = Compare());
 };
 
@@ -427,6 +430,12 @@ std::ostream& operator<<(std::ostream& os, const Vector<T>& vec) {
 }
 
 // 快速排序函数实现
+template <typename T>
+template <typename Compare>
+void Vector<T>::sort(iterator first, iterator last, Compare cmp) {
+    quick_sort(first, last, cmp);
+}
+
 template <typename T>
 template <typename Compare>
 void Vector<T>::sort(Compare cmp) {
