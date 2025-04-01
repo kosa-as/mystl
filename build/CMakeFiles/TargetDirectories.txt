@@ -1,3 +1,0 @@
-C:/Code/CPP/mystl/build/CMakeFiles/vector.dir
-C:/Code/CPP/mystl/build/CMakeFiles/edit_cache.dir
-C:/Code/CPP/mystl/build/CMakeFiles/rebuild_cache.dir

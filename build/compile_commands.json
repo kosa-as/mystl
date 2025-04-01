@@ -1,8 +1,0 @@
-[
-{
-  "directory": "C:/Code/CPP/mystl/build",
-  "command": "c:\\MinGW\\bin\\g++.exe   -g -o CMakeFiles\\vector.dir\\main.cpp.obj -c C:\\Code\\CPP\\mystl\\main.cpp",
-  "file": "C:/Code/CPP/mystl/main.cpp",
-  "output": "CMakeFiles/vector.dir/main.cpp.obj"
-}
-]
