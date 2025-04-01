@@ -75,15 +75,15 @@ CMakeFiles/vector.dir/main.cpp.obj: CMakeFiles/vector.dir/flags.make
 CMakeFiles/vector.dir/main.cpp.obj: C:/Code/CPP/mystl/main.cpp
 CMakeFiles/vector.dir/main.cpp.obj: CMakeFiles/vector.dir/compiler_depend.ts
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=C:\Code\CPP\mystl\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/vector.dir/main.cpp.obj"
-	C:\MinGW\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/vector.dir/main.cpp.obj -MF CMakeFiles\vector.dir\main.cpp.obj.d -o CMakeFiles\vector.dir\main.cpp.obj -c C:\Code\CPP\mystl\main.cpp
+	c:\MinGW\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/vector.dir/main.cpp.obj -MF CMakeFiles\vector.dir\main.cpp.obj.d -o CMakeFiles\vector.dir\main.cpp.obj -c C:\Code\CPP\mystl\main.cpp
 
 CMakeFiles/vector.dir/main.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/vector.dir/main.cpp.i"
-	C:\MinGW\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E C:\Code\CPP\mystl\main.cpp > CMakeFiles\vector.dir\main.cpp.i
+	c:\MinGW\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E C:\Code\CPP\mystl\main.cpp > CMakeFiles\vector.dir\main.cpp.i
 
 CMakeFiles/vector.dir/main.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/vector.dir/main.cpp.s"
-	C:\MinGW\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S C:\Code\CPP\mystl\main.cpp -o CMakeFiles\vector.dir\main.cpp.s
+	c:\MinGW\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S C:\Code\CPP\mystl\main.cpp -o CMakeFiles\vector.dir\main.cpp.s
 
 # Object files for target vector
 vector_OBJECTS = \

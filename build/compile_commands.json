@@ -1,7 +1,7 @@
 [
 {
   "directory": "C:/Code/CPP/mystl/build",
-  "command": "C:\\MinGW\\bin\\g++.exe   -g -std=gnu++17 -o CMakeFiles\\vector.dir\\main.cpp.obj -c C:\\Code\\CPP\\mystl\\main.cpp",
+  "command": "c:\\MinGW\\bin\\g++.exe   -g -o CMakeFiles\\vector.dir\\main.cpp.obj -c C:\\Code\\CPP\\mystl\\main.cpp",
   "file": "C:/Code/CPP/mystl/main.cpp",
   "output": "CMakeFiles/vector.dir/main.cpp.obj"
 }

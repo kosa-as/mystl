@@ -36,5 +36,9 @@ int main() {
         std::cout << *it << " ";
     }
     std::cout << std::endl;
+
+    Vector<int> vec7 = {1,2,3,4,5};
+    vec7.sort([](int a, int b) { return a > b; });
+    std::cout << vec7 << std::endl;
     return 0;
 }
