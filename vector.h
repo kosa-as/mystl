@@ -53,6 +53,11 @@ public:
     void clear();
     // 添加元素函数声明
     void push_back(const T& value);
+    // 添加元素函数声明,移动添加
+    void push_back(T&& value);
+    // 添加元素函数声明，直接构造
+    template<typename... Args>
+    void emplace_back(Args&&... args);
     // 查找元素函数声明
     const_iterator find(const T& value) const;
     // 插入元素函数声明
@@ -81,15 +86,15 @@ template <typename T>
 void Vector<T>::reserve(size_t new_capacity) {
     if (new_capacity <= vec_capacity) return;  // 只在需要扩容时执行
 
-    T* new_data = allocator.allocate(new_capacity);
+    T* new_data = std::allocator_traits<std::allocator<T>>::allocate(allocator, new_capacity);
     // 移动现有元素
     for (size_t i = 0; i < vec_size; i++) {
-        allocator.construct(&new_data[i], std::move(data[i]));
-        allocator.destroy(&data[i]);
+        std::allocator_traits<std::allocator<T>>::construct(allocator, &new_data[i], std::move(data[i]));
+        std::allocator_traits<std::allocator<T>>::destroy(allocator, &data[i]);
     }
     // 释放旧内存
     if (data) {
-        allocator.deallocate(data, vec_capacity);
+        std::allocator_traits<std::allocator<T>>::deallocate(allocator, data, vec_capacity);
     }
     data = new_data;
     vec_capacity = new_capacity;
@@ -106,7 +111,7 @@ Vector<T>::Vector(size_t n) : data(nullptr), vec_size(0), vec_capacity(0) {
     reserve(n);
     vec_size = n;
     for (size_t i = 0; i < n; ++i) {
-        allocator.construct(&data[i]);
+        std::allocator_traits<std::allocator<T>>::construct(allocator, &data[i]);
     }
 }
 
@@ -124,7 +129,7 @@ Vector<T>::Vector(std::initializer_list<T> init) : data(nullptr), vec_size(0), v
     if (init.size() > 0) {
         reserve(init.size());
         for (size_t i = 0; i < init.size(); ++i) {
-            allocator.construct(&data[i], *(init.begin() + i));
+            std::allocator_traits<std::allocator<T>>::construct(allocator, &data[i], *(init.begin() + i));
         }
         vec_size = init.size();
     }
@@ -136,7 +141,7 @@ Vector<T>::Vector(iterator begin, iterator end) : data(nullptr), vec_size(0), ve
     size_t count = end - begin;
     reserve(count);
     for (size_t i = 0; i < count; ++i) {
-        allocator.construct(&data[i], *(begin + i));
+        std::allocator_traits<std::allocator<T>>::construct(allocator, &data[i], *(begin + i));
     }
     vec_size = count;
 }
@@ -146,7 +151,7 @@ template <typename T>
 Vector<T>::Vector(const Vector<T>& other) : data(nullptr), vec_size(0), vec_capacity(0) {
     reserve(other.vec_size);
     for (size_t i = 0; i < other.vec_size; ++i) {
-        allocator.construct(&data[i], other.data[i]);
+        std::allocator_traits<std::allocator<T>>::construct(allocator, &data[i], other.data[i]);
     }
     vec_size = other.vec_size;
 }
@@ -177,19 +182,19 @@ Vector<T>& Vector<T>::operator=(const Vector<T>& other) {
             
             // 如果新大小更大，构造额外元素
             for (size_t i = vec_size; i < other.vec_size; ++i) {
-                allocator.construct(&data[i], other.data[i]);
+                std::allocator_traits<std::allocator<T>>::construct(allocator, &data[i], other.data[i]);
             }
             
             // 如果新大小更小，销毁多余元素
             for (size_t i = other.vec_size; i < vec_size; ++i) {
-                allocator.destroy(&data[i]);
+                std::allocator_traits<std::allocator<T>>::destroy(allocator, &data[i]);
             }
         } else {
             // 需要重新分配内存
             clear();
             reserve(other.vec_size);
             for (size_t i = 0; i < other.vec_size; ++i) {
-                allocator.construct(&data[i], other.data[i]);
+                std::allocator_traits<std::allocator<T>>::construct(allocator, &data[i], other.data[i]);
             }
         }
         
@@ -282,10 +287,10 @@ size_t Vector<T>::size() const {
 template <typename T>
 void Vector<T>::clear() {
     for (size_t i = 0; i < vec_size; i++) {
-        allocator.destroy(&data[i]);
+        std::allocator_traits<std::allocator<T>>::destroy(allocator, &data[i]);
     }
     if (data) {
-        allocator.deallocate(data, vec_capacity);
+        std::allocator_traits<std::allocator<T>>::deallocate(allocator, data, vec_capacity);
     }
     data = nullptr;
     vec_size = 0;
@@ -296,10 +301,32 @@ void Vector<T>::clear() {
 template <typename T>
 void Vector<T>::push_back(const T& value) {
     if (vec_size == vec_capacity) {
-        size_t new_capacity = (vec_capacity == 0) ? 1 : vec_capacity + (vec_capacity / 2);
+        size_t new_capacity = (vec_capacity == 0) ? 1 : 2 * vec_capacity;
         reserve(new_capacity);
     }
-    allocator.construct(data+vec_size, value);
+    std::allocator_traits<std::allocator<T>>::construct(allocator, data+vec_size, value);
+    ++vec_size;
+}
+
+template <typename T>
+void Vector<T>::push_back(T&& value) {
+    if (vec_size == vec_capacity) {
+        size_t new_capacity = (vec_capacity == 0) ? 1 : 2 * vec_capacity;
+        reserve(new_capacity);
+    }
+    std::allocator_traits<std::allocator<T>>::construct(allocator, data+vec_size, std::move(value));
+    ++vec_size;
+}
+
+// 添加元素函数实现，直接构造
+template <typename T>
+template<typename... Args>
+void Vector<T>::emplace_back(Args&&... args) {
+    if (vec_size == vec_capacity) {
+        size_t new_capacity = (vec_capacity == 0) ? 1 : 2 * vec_capacity;
+        reserve(new_capacity);
+    }
+    std::allocator_traits<std::allocator<T>>::construct(allocator, data+vec_size, std::forward<Args>(args)...);
     ++vec_size;
 }
 
@@ -320,13 +347,13 @@ template <typename T>
 void Vector<T>::insert(iterator pos, const T& value) {
     size_t index = pos - begin();
     if (vec_size == vec_capacity) {
-        size_t new_capacity = (vec_capacity == 0) ? 1 : vec_capacity + (vec_capacity / 2);
+        size_t new_capacity = (vec_capacity == 0) ? 1 : 2 * vec_capacity;
         reserve(new_capacity);
     }
     for (size_t i = vec_size; i > index; --i) {
-        allocator.construct(&data[i], std::move(data[i-1]));
+        std::allocator_traits<std::allocator<T>>::construct(allocator, &data[i], std::move(data[i-1]));
     }
-    allocator.construct(&data[index], value);
+    std::allocator_traits<std::allocator<T>>::construct(allocator, &data[index], value);
     ++vec_size;
 }
 
@@ -335,9 +362,9 @@ template <typename T>
 void Vector<T>::erase(iterator pos) {
     size_t index = pos - begin();
     for (size_t i = index; i < vec_size - 1; ++i) {
-        allocator.construct(&data[i], std::move(data[i+1]));
+        std::allocator_traits<std::allocator<T>>::construct(allocator, &data[i], std::move(data[i+1]));
     }
-    allocator.destroy(&data[vec_size-1]);
+    std::allocator_traits<std::allocator<T>>::destroy(allocator, &data[vec_size-1]);
     --vec_size;
 }
 
@@ -347,7 +374,7 @@ void Vector<T>::pop_back() {
     if(vec_size == 0) {
         throw std::out_of_range("Vector::pop_back");
     }
-    allocator.destroy(&data[vec_size-1]);
+    std::allocator_traits<std::allocator<T>>::destroy(allocator, &data[vec_size-1]);
     --vec_size;
 }
 
