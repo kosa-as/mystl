@@ -47,6 +47,7 @@ public:
     T& at(size_t index);
     // 容量和大小函数声明
     size_t capacity() const;
+    void set_capacity(size_t new_capacity);
     bool empty() const;
     size_t size() const;
     // 清空函数声明
@@ -81,6 +82,12 @@ public:
     void sort(Compare cmp = Compare());
 };
 
+template <typename T>
+void Vector<T>::set_capacity(size_t new_capacity) {
+    if (new_capacity <= vec_capacity) return;  // 只在需要扩容时执行
+    reserve(new_capacity);
+}
+
 // 扩容函数实现
 template <typename T>
 void Vector<T>::reserve(size_t new_capacity) {
@@ -90,6 +97,7 @@ void Vector<T>::reserve(size_t new_capacity) {
     // 移动现有元素
     for (size_t i = 0; i < vec_size; i++) {
         std::allocator_traits<std::allocator<T>>::construct(allocator, &new_data[i], std::move(data[i]));
+        // std::allocator_traits<std::allocator<T>>::construct(allocator, &new_data[i], data[i]);
         std::allocator_traits<std::allocator<T>>::destroy(allocator, &data[i]);
     }
     // 释放旧内存
@@ -103,7 +111,9 @@ void Vector<T>::reserve(size_t new_capacity) {
 
 // 默认构造函数实现
 template <typename T>
-Vector<T>::Vector() noexcept : data(nullptr), vec_size(0), vec_capacity(0) {}
+Vector<T>::Vector() noexcept : data(nullptr), vec_size(0), vec_capacity(0) {
+    std::cout << "默认构造函数" << std::endl;
+}
 
 // 显式构造函数实现
 template <typename T>
@@ -113,6 +123,7 @@ Vector<T>::Vector(size_t n) : data(nullptr), vec_size(0), vec_capacity(0) {
     for (size_t i = 0; i < n; ++i) {
         std::allocator_traits<std::allocator<T>>::construct(allocator, &data[i]);
     }
+    std::cout << "显式构造函数" << std::endl;
 }
 
 // 直接构造函数实现
@@ -121,6 +132,7 @@ Vector<T>::Vector(size_t n, const T& val) : data(nullptr), vec_size(0), vec_capa
     reserve(n);
     vec_size = n;
     std::uninitialized_fill_n(data, n, val);
+    std::cout << "直接构造函数" << std::endl;
 }
 
 // 初始化列表构造函数实现
@@ -133,6 +145,7 @@ Vector<T>::Vector(std::initializer_list<T> init) : data(nullptr), vec_size(0), v
         }
         vec_size = init.size();
     }
+    std::cout << "初始化列表构造函数" << std::endl;
 }
 
 // 迭代器构造函数实现
@@ -144,6 +157,7 @@ Vector<T>::Vector(iterator begin, iterator end) : data(nullptr), vec_size(0), ve
         std::allocator_traits<std::allocator<T>>::construct(allocator, &data[i], *(begin + i));
     }
     vec_size = count;
+    std::cout << "迭代器构造函数" << std::endl;
 }
 
 // 拷贝构造函数实现
@@ -154,6 +168,7 @@ Vector<T>::Vector(const Vector<T>& other) : data(nullptr), vec_size(0), vec_capa
         std::allocator_traits<std::allocator<T>>::construct(allocator, &data[i], other.data[i]);
     }
     vec_size = other.vec_size;
+    std::cout << "拷贝构造函数" << std::endl;
 }
 
 // 移动构造函数实现
@@ -167,6 +182,7 @@ Vector<T>::Vector(Vector<T>&& other) noexcept :
     other.data = nullptr;
     other.vec_size = 0;
     other.vec_capacity = 0;
+    std::cout << "移动构造函数" << std::endl;
 }
 
 // 拷贝赋值运算符实现
@@ -200,6 +216,7 @@ Vector<T>& Vector<T>::operator=(const Vector<T>& other) {
         
         vec_size = other.vec_size;
     }
+    std::cout << "拷贝赋值运算符" << std::endl;
     return *this;
 }
 
@@ -220,6 +237,7 @@ Vector<T>& Vector<T>::operator=(Vector<T>&& other) noexcept {
         other.vec_size = 0;
         other.vec_capacity = 0;
     }
+    std::cout << "移动赋值运算符" << std::endl;
     return *this;
 }
 
@@ -227,6 +245,7 @@ Vector<T>& Vector<T>::operator=(Vector<T>&& other) noexcept {
 template <typename T>
 Vector<T>::~Vector() {
     clear();
+    std::cout << "析构函数" << std::endl;
 }
 
 // 迭代器函数实现
@@ -326,7 +345,14 @@ void Vector<T>::emplace_back(Args&&... args) {
         size_t new_capacity = (vec_capacity == 0) ? 1 : 2 * vec_capacity;
         reserve(new_capacity);
     }
-    std::allocator_traits<std::allocator<T>>::construct(allocator, data+vec_size, std::forward<Args>(args)...);
+    
+    // 使用完美转发构造新元素
+    std::allocator_traits<std::allocator<T>>::construct(
+        allocator, 
+        data + vec_size, 
+        std::forward<Args>(args)...
+    );
+    
     ++vec_size;
 }
 
