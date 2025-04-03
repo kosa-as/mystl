@@ -11,8 +11,6 @@
 #include <iostream>
 template <typename T>
 class Vector {
-    using iterator = T*;             // 普通迭代器
-    using const_iterator = const T*; // const 迭代器
 private:
     T* data;
     size_t vec_size;
@@ -22,8 +20,30 @@ private:
     void reserve(size_t new_capacity);
     // 快速排序函数声明
     template<typename Compare>
-    void quick_sort(iterator first, iterator last, Compare cmp);
+    void quick_sort(typename Vector<T>::iterator first, typename Vector<T>::iterator last, Compare cmp);
 public:
+    class iterator {
+        T* ptr;
+        public:
+        explicit iterator(T* ptr) : ptr(ptr) {}
+        T& operator*() const { return *ptr; }
+        T* operator->() const { return ptr; }
+        iterator& operator++() { ++ptr; return *this; }//前缀加
+        iterator operator++(int) { iterator tmp = *this; ++(*this); return tmp; }//后缀加
+        iterator& operator--() { --ptr; return *this; }//前缀减
+        iterator operator--(int) { iterator tmp = *this; --(*this); return tmp; }//后缀减
+        bool operator==(const iterator& other) const { return ptr == other.ptr; }
+        bool operator!=(const iterator& other) const { return ptr != other.ptr; }
+        iterator operator+(size_t n) const { return iterator(ptr + n); }
+        iterator operator-(size_t n) const { return iterator(ptr - n); }
+
+    };
+    class const_iterator : public iterator {
+        public:
+        explicit const_iterator(const T* ptr) : iterator(ptr) {}
+        const T& operator*() const { return iterator::operator*(); }
+        const T* operator->() const { return iterator::operator->(); }
+    };
     // 构造函数声明
     Vector() noexcept;
     explicit Vector(size_t n);
@@ -251,22 +271,22 @@ Vector<T>::~Vector() {
 // 迭代器函数实现
 template <typename T>
 typename Vector<T>::iterator Vector<T>::begin() {
-    return data;
+    return iterator(data);
 }
 
 template <typename T>
 typename Vector<T>::const_iterator Vector<T>::const_begin() const {
-    return data;
+    return const_iterator(data);
 }
 
 template <typename T>
 typename Vector<T>::iterator Vector<T>::end() {
-    return data + vec_size;
+    return iterator(data + vec_size);
 }
 
 template <typename T>
 typename Vector<T>::const_iterator Vector<T>::const_end() const {
-    return data + vec_size;
+    return const_iterator(data + vec_size);
 }
 
 // 访问元素函数实现
@@ -442,7 +462,7 @@ std::ostream& operator<<(std::ostream& os, const Vector<T>& vec) {
 // 快速排序函数实现
 template <typename T>
 template <typename Compare>
-void Vector<T>::quick_sort(iterator first, iterator last, Compare cmp) {
+void Vector<T>::quick_sort(typename Vector<T>::iterator first, typename Vector<T>::iterator last, Compare cmp) {
     if (first >= last) return;
     // 选择基准元素（此处选择中间元素）
     T pivot = *(first + (last - first) / 2);
