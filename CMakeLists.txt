@@ -7,4 +7,5 @@ project(mystl)
 
 set(CMAKE_CXX_STANDARD 20)
 
-add_executable(vector main.cpp)
+add_executable(vector main.cpp
+        shared_ptr.h)
