@@ -11,20 +11,10 @@
 #include <iostream>
 template <typename T>
 class Vector {
-private:
-    T* data;
-    size_t vec_size;
-    size_t vec_capacity;
-    std::allocator<T> allocator;
-    // 扩容函数声明
-    void reserve(size_t new_capacity);
-    // 快速排序函数声明
-    template<typename Compare>
-    void quick_sort(typename Vector<T>::iterator first, typename Vector<T>::iterator last, Compare cmp);
 public:
     class iterator {
         T* ptr;
-        public:
+    public:
         explicit iterator(T* ptr) : ptr(ptr) {}
         T& operator*() const { return *ptr; }
         T* operator->() const { return ptr; }
@@ -39,11 +29,22 @@ public:
 
     };
     class const_iterator : public iterator {
-        public:
+    public:
         explicit const_iterator(const T* ptr) : iterator(ptr) {}
         const T& operator*() const { return iterator::operator*(); }
         const T* operator->() const { return iterator::operator->(); }
     };
+private:
+    T* data;
+    size_t vec_size;
+    size_t vec_capacity;
+    std::allocator<T> allocator;
+    // 扩容函数声明
+    void reserve(size_t new_capacity);
+    // 快速排序函数声明
+    template<typename Compare>
+    void quick_sort(iterator first, iterator last, Compare cmp);
+public:
     // 构造函数声明
     Vector() noexcept;
     explicit Vector(size_t n);
@@ -66,10 +67,10 @@ public:
     T& operator[](size_t index);
     T& at(size_t index);
     // 容量和大小函数声明
-    size_t capacity() const;
+    [[nodiscard]] size_t capacity() const;
     void set_capacity(size_t new_capacity);
-    bool empty() const;
-    size_t size() const;
+    [[nodiscard]] bool empty() const;
+    [[nodiscard]] size_t size() const;
     // 清空函数声明
     void clear();
     // 添加元素函数声明
@@ -90,7 +91,7 @@ public:
     T& front() const;
     T& back() const;
     // 交换函数声明
-    void swap(Vector& other);
+    void swap(Vector& other) noexcept;
     // 友元函数声明
     template <typename U>
     friend std::ostream& operator<<(std::ostream& os, const Vector<U>& vec);
@@ -443,7 +444,7 @@ T& Vector<T>::back() const {
 
 // 交换函数实现
 template <typename T>
-void Vector<T>::swap(Vector& other) {
+void Vector<T>::swap(Vector& other) noexcept{
     std::swap(data, other.data);
     std::swap(vec_size, other.vec_size);
     std::swap(vec_capacity, other.vec_capacity);
@@ -462,7 +463,7 @@ std::ostream& operator<<(std::ostream& os, const Vector<T>& vec) {
 // 快速排序函数实现
 template <typename T>
 template <typename Compare>
-void Vector<T>::quick_sort(typename Vector<T>::iterator first, typename Vector<T>::iterator last, Compare cmp) {
+void Vector<T>::quick_sort(iterator first, iterator last, Compare cmp) {
     if (first >= last) return;
     // 选择基准元素（此处选择中间元素）
     T pivot = *(first + (last - first) / 2);
