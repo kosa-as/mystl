@@ -3,3 +3,4 @@ build/
 .idea/
 main
 qodana.yaml
+main.cpp

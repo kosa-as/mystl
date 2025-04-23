@@ -13,6 +13,7 @@ class Function<R(Args...)> {
     class ICallable {
     public:
         virtual R invoke(Args&&... args) = 0;
+        virtual std::unique_ptr<ICallable> clone() const = 0;
         virtual ~ICallable() = default;
     };
 
@@ -22,26 +23,47 @@ class Function<R(Args...)> {
         F func;
     public:
         explicit CallableImpl(F&& f) : func(std::forward<F>(f)) {}
+        
         R invoke(Args&&... args) override {
             return func(std::forward<Args>(args)...);
+        }
+        
+        std::unique_ptr<ICallable> clone() const override {
+            return std::make_unique<CallableImpl<F>>(F(func));
         }
     };
 
     std::unique_ptr<ICallable> callable;
 
 public:
-    template <typename  F, typename = std::enable_if_t<!std::is_same<std::decay_t<F>, Function>::value>>
-    //构造函数，接受一个可调用对象F，并将其包裹在CallableImpl中。其中使用了SFINAE技术，确保只有当F不是Function类型时，才会进行包裹
+    // 默认构造函数
+    Function() noexcept = default;
+    
+    template <typename F, typename = std::enable_if_t<!std::is_same<std::decay_t<F>, Function>::value>>
+    //构造函数，接受一个可调用对象F，并将其包裹在CallableImpl中
     Function(F&& f)
-        : callable(std::make_unique<CallableImpl<std::decay_t<F>>>(std::forward<F>(f))) {}//使用了类型擦除技术，将可调用对象F包裹在CallableImpl中
+        : callable(std::make_unique<CallableImpl<std::decay_t<F>>>(std::forward<F>(f))) {}
 
+    // 移动构造和赋值
     Function(Function&& other) noexcept = default;
     Function& operator=(Function&& other) noexcept = default;
 
-    Function(const Function&) = delete;
-    Function& operator=(const Function&) = delete;
+    // 拷贝构造函数
+    Function(const Function& other) 
+        : callable(other.callable ? other.callable->clone() : nullptr) {}
+    
+    // 拷贝赋值运算符
+    Function& operator=(const Function& other) {
+        if (this != &other) {
+            callable = other.callable ? other.callable->clone() : nullptr;
+        }
+        return *this;
+    }
 
     R operator()(Args... args) {
+        if (!callable) {
+            throw std::bad_function_call();
+        }
         return callable->invoke(std::forward<Args>(args)...);
     }
 
