@@ -2,6 +2,7 @@
 #include <memory>
 #include <utility>
 #include <type_traits>
+#include <functional>
 
 template <typename>
 class Function; 
@@ -25,7 +26,8 @@ class Function<R(Args...)> {
         explicit CallableImpl(F&& f) : func(std::forward<F>(f)) {}
         
         R invoke(Args&&... args) override {
-            return func(std::forward<Args>(args)...);
+            // return func(std::forward<Args>(args)...);
+            return std::invoke(func, std::forward<Args>(args)...);
         }
         
         std::unique_ptr<ICallable> clone() const override {

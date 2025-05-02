@@ -36,6 +36,13 @@ class SingletonThreadPool {
         }
     }
 
+
+public:
+    SingletonThreadPool& operator= (const SingletonThreadPool &) = delete;
+    SingletonThreadPool(const SingletonThreadPool &) = delete;
+    SingletonThreadPool(SingletonThreadPool &&) = delete;
+    SingletonThreadPool& operator= (SingletonThreadPool &&) = delete;
+
     ~SingletonThreadPool() {
         stop.store(true);
         condition.notify_all();
@@ -43,14 +50,9 @@ class SingletonThreadPool {
             if (worker.joinable())
                 worker.join();
     }
-public:
-    SingletonThreadPool& operator= (const SingletonThreadPool &) = delete;
-    SingletonThreadPool(const SingletonThreadPool &) = delete;
-    SingletonThreadPool(SingletonThreadPool &&) = delete;
-    SingletonThreadPool &operator= (SingletonThreadPool &&) = delete;
-
+    
     static SingletonThreadPool* get_thread_pool(size_t threads) {
-        static std::unique_ptr<SingletonThreadPool> ptr= std::make_unique<SingletonThreadPool>(SingletonThreadPool(threads));
+        static std::unique_ptr<SingletonThreadPool> ptr(new SingletonThreadPool(threads));
         return ptr.get();
     }
 
